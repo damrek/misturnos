@@ -14,5 +14,5 @@ MisTurnos work shift calendar app sample compatible with Android.
 * [Butter Knife](https://github.com/JakeWharton/butterknife)
 
 #### Screenshots
-<img src="https://user-images.githubusercontent.com/49274799/79460765-8eef8b80-7ff5-11ea-9d72-1fbfb08e813d.png" width="300">
-<img src="https://user-images.githubusercontent.com/49274799/79462637-10481d80-7ff8-11ea-83d3-47241ca3893d.PNG" height="610">
+<img src="https://user-images.githubusercontent.com/49274799/79460765-8eef8b80-7ff5-11ea-9d72-1fbfb08e813d.png" width="30%">
+<img src="https://user-images.githubusercontent.com/49274799/79462637-10481d80-7ff8-11ea-83d3-47241ca3893d.PNG" width="20%">
