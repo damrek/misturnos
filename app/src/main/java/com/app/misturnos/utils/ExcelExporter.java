@@ -22,23 +22,25 @@ public class ExcelExporter {
 
     TreeMap<Date, String> cDlistFinal;
     Context context;
-    String mes;
+    String month;
+    String year;
 
     String[] monthName = {"Enero", "Febrero",
             "Marzo", "Abril", "Mayo", "Junio", "Julio",
             "Agosto", "Septiembre", "Octubre", "Noviembre",
             "Diciembre"};
 
-    public ExcelExporter(TreeMap<Date, String> cDlistFinal, Context context, Integer mes) {
+    public ExcelExporter(TreeMap<Date, String> cDlistFinal, Context context, Integer month, Integer year) {
         this.cDlistFinal = cDlistFinal;
         this.context = context;
-        this.mes = monthName[mes];
+        this.month = monthName[month];
+        this.year = year.toString();
     }
 
     public void export() {
         String path = context.getExternalFilesDir(null).getAbsolutePath() +  "/MisTurnos/";
 
-        String csvFile = "turnos_"+mes+".xls";
+        String csvFile = "MisTurnos_"+month+"_"+year+".xls";
 
         File directory = new File(path);
 

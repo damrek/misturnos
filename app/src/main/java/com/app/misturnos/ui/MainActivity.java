@@ -71,13 +71,13 @@ public class MainActivity extends AppCompatActivity {
         ((App) getApplication()).getAppComponent().inject(this);
 
         ButterKnife.bind(this);
-
         loadDates();
+        setupObservers();
+        askForPermission(Manifest.permission.READ_EXTERNAL_STORAGE, READ_EXST);
+        askForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, WRITE_EXST);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+    private void setupObservers() {
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,29 +102,31 @@ public class MainActivity extends AppCompatActivity {
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                for (Iterator<EventDecorator> it = calendarios.iterator(); it.hasNext(); ) {
-                    EventDecorator e = it.next();
-                    boolean delete = checkIfDateExists(e.getDates().iterator().next().toString());
-                    if (delete) {
-                        mcv.removeDecorator(e);
-                        it.remove();
+                if (mcv.getSelectedDate() != null) {
+                    for (Iterator<EventDecorator> it = calendarios.iterator(); it.hasNext(); ) {
+                        EventDecorator e = it.next();
+                        boolean delete = checkIfDateExists(e.getDates().iterator().next().toString());
+                        if (delete) {
+                            mcv.removeDecorator(e);
+                            it.remove();
+                        }
                     }
-                }
 
-                savePreferences();
-                mcv.invalidateDecorators();
-                mcv.clearSelection();
+                    savePreferences();
+                    mcv.invalidateDecorators();
+                    mcv.clearSelection();
+                }
             }
         });
 
         exportButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Calendar cal = new GregorianCalendar();
                 cal.set(mcv.getCurrentDate().getYear(), mcv.getCurrentDate().getMonth() - 1, 1, 0, 0, 0);
 
                 int myMonth = cal.get(Calendar.MONTH);
+                int myYear = cal.get(Calendar.YEAR);
 
                 TreeMap<Date, String> cDlist = new TreeMap<>();
                 for (EventDecorator e : calendarios
@@ -171,9 +173,7 @@ public class MainActivity extends AppCompatActivity {
                     oldValue = (String) pair.getKey().toString();
                 }
 
-                askForPermission(Manifest.permission.READ_EXTERNAL_STORAGE, READ_EXST);
-                askForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, WRITE_EXST);
-                ExcelExporter xlsExporter = new ExcelExporter(cDlistFinal, MainActivity.this, myMonth);
+                ExcelExporter xlsExporter = new ExcelExporter(cDlistFinal, MainActivity.this, myMonth, myYear);
                 xlsExporter.export();
             }
         });
