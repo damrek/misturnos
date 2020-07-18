@@ -1,26 +1,37 @@
-## MisTurnos App
-MisTurnos work shift calendar app sample compatible with Android. 
+# MisTurnos App 
+[![Platform](https://img.shields.io/badge/platform-Android-green.svg)](http://developer.android.com/index.html) 
 
-#### Features
+MisTurnos work shift calendar app done in Java compatible with Android devices. 
+
+## Features
 * Multiple days selection at one time.
 * Add event (morning, afternoon, night) colored dot to each day. 
 * Export month selected to XLS format.
 
-#### Libraries used
+## Dependencies
 * [Material-Calendarview](https://github.com/prolificinteractive/material-calendarview)
 * [Gson](https://github.com/google/gson)
 * [Jexcelapi](https://mvnrepository.com/artifact/net.sourceforge.jexcelapi/jxl/2.6.12)
 * [Dagger 2](https://github.com/google/dagger)
 * [Butter Knife](https://github.com/JakeWharton/butterknife)
 
-#### Screenshots
-<table>
-  <tr>
-    <td>Main Screen</td>
-     <td>XLS Sample</td>
-  </tr>
-  <tr>
-    <td><img src="https://user-images.githubusercontent.com/49274799/79460765-8eef8b80-7ff5-11ea-9d72-1fbfb08e813d.png" width=270 height=480></td>
-    <td><img src="https://user-images.githubusercontent.com/49274799/79462637-10481d80-7ff8-11ea-83d3-47241ca3893d.PNG" width=270 height=480></td>
-  </tr>
- </table>
+## Demo
+<h3 align="center">Calendar Screen and Export Screen</h3>
+<p align="center">
+    <img src="assets/main_demo.gif?raw=true"
+        alt="Search Movie Screen Action GIF"    
+        style="margin-right: 10px;"    
+        width="200" />
+    <img src="assets/screen_export.png"
+        alt="About App Screen"    
+        style="margin-right: 10px;"    
+        width="174" />
+</p>
+
+## Support me
+
+> Just **star** or **fork** this repository, and follow my github. You have _supported_ me!
+
+## Author
+
+[**David Mareca**](https://www.linkedin.com/in/davidme/)
