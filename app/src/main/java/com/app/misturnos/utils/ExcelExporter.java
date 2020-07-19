@@ -15,6 +15,7 @@ import jxl.WorkbookSettings;
 import jxl.format.Colour;
 import jxl.write.WritableCell;
 import jxl.write.WritableCellFormat;
+import jxl.write.WritableFont;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 
@@ -59,7 +60,7 @@ public class ExcelExporter {
             workbook = Workbook.createWorkbook(file, wbSettings);
 
             //Excel sheetA first sheetA
-            WritableSheet sheetA = workbook.createSheet("MisTurnos", 0);
+            WritableSheet sheetA = workbook.createSheet(month+"_"+year, 0);
 
             Iterator it = cDlistFinal.entrySet().iterator();
             int conta = 0;
@@ -68,6 +69,7 @@ public class ExcelExporter {
                 WritableCellFormat newFormat = new WritableCellFormat(new jxl.write.DateFormat("dd-mm-yyyy"));
 
                 WritableCell c = new jxl.write.DateTime(0, conta, (Date) pair.getKey(), newFormat);
+                WritableCell cNameTurno = new jxl.write.Label(1, conta, (String) pair.getValue().toString());
                 switch (pair.getValue().toString()) {
                     case "Libre":
                         newFormat.setBackground(Colour.BRIGHT_GREEN);
@@ -88,6 +90,8 @@ public class ExcelExporter {
 
                 c.setCellFormat(newFormat);
                 sheetA.addCell(c);
+                cNameTurno.setCellFormat(new WritableCellFormat(new jxl.write.WritableFont(new WritableFont(WritableFont.ARIAL))));
+                sheetA.addCell(cNameTurno);
                 conta++;
             }
 

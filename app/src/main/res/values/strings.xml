@@ -8,6 +8,5 @@
         <item><font color="#ff9933">Tardes</font></item>
         <item><font color="#ff00ff">Noches</font></item>
     </string-array>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

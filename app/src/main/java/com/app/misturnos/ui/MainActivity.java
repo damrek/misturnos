@@ -85,6 +85,12 @@ public class MainActivity extends AppCompatActivity {
         askForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, WRITE_EXST);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mcv.invalidateDecorators();
+    }
+
     private void setupObservers() {
 
         saveButton.setOnClickListener(new View.OnClickListener() {

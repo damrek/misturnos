@@ -29,7 +29,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 if(!TextUtils.isEmpty(newValue.toString())){
                     preference.setSummary(newValue.toString());
                 }else{
-                    preference.setSummary(preference.getSummary());
+                    preference.setSummary("Enter your email address to share");
                 }
                 return true;
             }
