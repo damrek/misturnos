@@ -24,6 +24,7 @@ public class ExcelExporter {
     Context context;
     String month;
     String year;
+    private File fileGenerated;
 
     String[] monthName = {"Enero", "Febrero",
             "Marzo", "Abril", "Mayo", "Junio", "Julio",
@@ -38,9 +39,9 @@ public class ExcelExporter {
     }
 
     public void export() {
-        String path = context.getExternalFilesDir(null).getAbsolutePath() +  "/MisTurnos/";
+        String path = context.getExternalFilesDir(null).getAbsolutePath() + "/MisTurnos/";
 
-        String csvFile = "MisTurnos_"+month+"_"+year+".xls";
+        String csvFile = "MisTurnos_" + month + "_" + year + ".xls";
 
         File directory = new File(path);
 
@@ -53,7 +54,7 @@ public class ExcelExporter {
             //file path
             File file = new File(directory, csvFile);
             WorkbookSettings wbSettings = new WorkbookSettings();
-            wbSettings.setLocale(new Locale ( "es" , "ES" ));
+            wbSettings.setLocale(new Locale("es", "ES"));
             WritableWorkbook workbook;
             workbook = Workbook.createWorkbook(file, wbSettings);
 
@@ -67,9 +68,12 @@ public class ExcelExporter {
                 WritableCellFormat newFormat = new WritableCellFormat(new jxl.write.DateFormat("dd-mm-yyyy"));
 
                 WritableCell c = new jxl.write.DateTime(0, conta, (Date) pair.getKey(), newFormat);
-                switch (pair.getValue().toString()){
+                switch (pair.getValue().toString()) {
+                    case "Libre":
+                        newFormat.setBackground(Colour.BRIGHT_GREEN);
+                        break;
                     case "Mañanas":
-                        newFormat.setBackground(Colour.AQUA);
+                        newFormat.setBackground(Colour.SKY_BLUE);
                         break;
                     case "Tardes":
                         newFormat.setBackground(Colour.ORANGE);
@@ -91,9 +95,14 @@ public class ExcelExporter {
             workbook.write();
             workbook.close();
             Toast.makeText(this.context, "Fichero generado en: " + directory.getAbsolutePath() + "/" + csvFile, Toast.LENGTH_LONG).show();
+            fileGenerated = file;
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public File getFileGenerated() {
+        return fileGenerated;
     }
 }

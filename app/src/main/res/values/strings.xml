@@ -3,8 +3,11 @@
     <string name="turnos_prompt">Elige un turno</string>
 
     <string-array name="turnos_array">
+        <item><font color="#32CD32">Libre</font></item>
         <item><font color="#3399ff">Mañanas</font></item>
         <item><font color="#ff9933">Tardes</font></item>
         <item><font color="#ff00ff">Noches</font></item>
     </string-array>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

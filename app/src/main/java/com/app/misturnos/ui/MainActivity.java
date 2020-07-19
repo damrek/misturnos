@@ -1,19 +1,26 @@
 package com.app.misturnos.ui;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import com.app.misturnos.App;
 import com.app.misturnos.EventDecorator;
@@ -24,6 +31,7 @@ import com.google.gson.reflect.TypeToken;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 
+import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -83,19 +91,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 List<CalendarDay> dates = mcv.getSelectedDates();
+                if (mcv.getSelectedDate() != null) {
+                    for (CalendarDay c : dates
+                    ) {
+                        List<CalendarDay> dateAdd = new ArrayList<>();
+                        dateAdd.add(c);
+                        EventDecorator eventDecorator = new EventDecorator(mcv.getSelectionColor(), dateAdd);
+                        mcv.addDecorator(eventDecorator);
+                        calendarios.add(eventDecorator);
 
-                for (CalendarDay c : dates
-                ) {
-                    List<CalendarDay> dateAdd = new ArrayList<>();
-                    dateAdd.add(c);
-                    EventDecorator eventDecorator = new EventDecorator(mcv.getSelectionColor(), dateAdd);
-                    mcv.addDecorator(eventDecorator);
-                    calendarios.add(eventDecorator);
+                    }
 
+                    savePreferences();
+                    mcv.clearSelection();
                 }
-
-                savePreferences();
-                mcv.clearSelection();
             }
         });
 
@@ -136,6 +145,9 @@ public class MainActivity extends AppCompatActivity {
                     if (e.getDates().iterator().next().getMonth() - 1 == mcv.getCurrentDate().getMonth() - 1) {
                         String turno = "";
                         switch (e.getColor()) {
+                            case -13395457:
+                                turno = "Libre";
+                                break;
                             case -26317:
                                 turno = "Tardes";
                                 break;
@@ -175,6 +187,15 @@ public class MainActivity extends AppCompatActivity {
 
                 ExcelExporter xlsExporter = new ExcelExporter(cDlistFinal, MainActivity.this, myMonth, myYear);
                 xlsExporter.export();
+                boolean sendEmail = App.sharedPreferences.getBoolean("sendMail", false);
+                if (sendEmail) {
+                    String emailAddr = App.sharedPreferences.getString("mailAddr", "");
+                    if (TextUtils.isEmpty(emailAddr)) {
+                        Toast.makeText(MainActivity.this, "Introduce un email en opciones.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        sendCalendarByEmail(emailAddr, "Calendario MisTurnos", xlsExporter.getFileGenerated());
+                    }
+                }
             }
         });
 
@@ -183,6 +204,9 @@ public class MainActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 textSpinner = spinner.getSelectedItem().toString();
                 switch (textSpinner) {
+                    case "Libre":
+                        mcv.setSelectionColor(Color.parseColor("#32CD32"));
+                        break;
                     case "Mañanas":
                         mcv.setSelectionColor(Color.parseColor("#3399ff"));
                         break;
@@ -261,4 +285,31 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.settings_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_settings:
+                Intent intentSettings = new Intent(this, SettingsActivity.class);
+                startActivity(intentSettings);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void sendCalendarByEmail(String to, String sub, File fileAttachment) {
+        Uri uri = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName() + ".provider", fileAttachment);
+        Intent mail = new Intent(Intent.ACTION_SEND);
+        mail.putExtra(Intent.EXTRA_EMAIL, new String[]{to});
+        mail.putExtra(Intent.EXTRA_SUBJECT, sub);
+        mail.putExtra(Intent.EXTRA_STREAM, uri);
+        mail.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        mail.setType("text/plain");
+        startActivity(Intent.createChooser(mail, "Send email via:"));
+    }
 }

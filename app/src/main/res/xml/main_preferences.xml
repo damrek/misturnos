@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <ListPreference
+        android:key="eventStyle"
+        android:title="Calendar event style"
+        android:entries="@array/event_style_names_array"
+        android:entryValues="@array/event_style_values_array"
+        android:summary="Event decorator style (colour dot or cell tinted)"
+        android:icon="@drawable/ic_baseline_color_lens_24"
+        android:dialogIcon="@drawable/ic_baseline_color_lens_24"
+        app:defaultValue="bg"
+        />
+
+    <EditTextPreference
+        android:key="mailAddr"
+        android:title="Default email address"
+        android:summary="Enter your email address to share"
+        android:dialogTitle="EditText Dialog"
+        android:icon="@drawable/ic_baseline_alternate_email_24"
+        android:dialogIcon="@drawable/ic_baseline_alternate_email_24"
+        app:dialogIcon="@drawable/ic_baseline_alternate_email_24"
+        app:dialogTitle="Enter your email address"
+        />
+
+    <SwitchPreferenceCompat
+        android:key="sendMail"
+        android:title="Share calendar file"
+        android:summary="Share exported calendar"
+        app:summaryOff="Share exported calendar"
+        app:summaryOn="Enabled"
+        android:switchTextOn="Email setting enabled"
+        android:switchTextOff="Email send disabled"
+        android:summaryOff="Disabled"
+        android:icon="@drawable/ic_baseline_send_24"
+        android:dialogIcon="@drawable/ic_baseline_send_24"
+        app:dialogIcon="@drawable/ic_baseline_send_24"
+        app:defaultValue="false"
+        />
+
+</PreferenceScreen>
