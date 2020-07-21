@@ -5,8 +5,6 @@
     android:id="@+id/settings_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.SettingsActivity"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp">
+    tools:context=".ui.SettingsActivity">
 
 </androidx.constraintlayout.widget.ConstraintLayout>

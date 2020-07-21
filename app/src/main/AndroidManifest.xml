@@ -16,7 +16,8 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".ui.SettingsActivity"
-            android:parentActivityName="com.app.misturnos.ui.MainActivity">
+            android:parentActivityName="com.app.misturnos.ui.MainActivity"
+            android:theme="@style/PreferenceScreen">
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -31,6 +32,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"

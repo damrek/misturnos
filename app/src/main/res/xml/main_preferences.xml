@@ -1,41 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <ListPreference
-        android:key="eventStyle"
-        android:title="Calendar event style"
-        android:entries="@array/event_style_names_array"
-        android:entryValues="@array/event_style_values_array"
-        android:summary="Event decorator style (colour dot or cell tinted)"
-        android:icon="@drawable/ic_baseline_color_lens_24"
-        android:dialogIcon="@drawable/ic_baseline_color_lens_24"
-        app:defaultValue="bg"
-        />
+    <PreferenceCategory android:title="General">
+        <ListPreference
+            android:dialogIcon="@drawable/ic_baseline_color_lens_24"
+            android:entries="@array/event_style_names_array"
+            android:entryValues="@array/event_style_values_array"
+            android:icon="@drawable/ic_baseline_color_lens_24"
+            android:key="eventStyle"
+            android:summary="Event decorator style (colour dot or cell tinted)"
+            android:title="Calendar event style"
+            app:defaultValue="bg" />
 
-    <EditTextPreference
-        android:key="mailAddr"
-        android:title="Default email address"
-        android:summary="Enter your email address to share"
-        android:dialogTitle="EditText Dialog"
-        android:icon="@drawable/ic_baseline_alternate_email_24"
-        android:dialogIcon="@drawable/ic_baseline_alternate_email_24"
-        app:dialogIcon="@drawable/ic_baseline_alternate_email_24"
-        app:dialogTitle="Enter your email address"
-        />
+        <EditTextPreference
+            android:dialogIcon="@drawable/ic_baseline_alternate_email_24"
+            android:dialogTitle="EditText Dialog"
+            android:icon="@drawable/ic_baseline_alternate_email_24"
+            android:key="mailAddr"
+            android:summary="Enter your email address to share"
+            android:title="Default email address"
+            app:dialogIcon="@drawable/ic_baseline_alternate_email_24"
+            app:dialogTitle="Enter your email address" />
 
-    <SwitchPreferenceCompat
-        android:key="sendMail"
-        android:title="Share calendar file"
-        android:summary="Share exported calendar"
-        app:summaryOff="Share exported calendar"
-        app:summaryOn="Enabled"
-        android:switchTextOn="Email setting enabled"
-        android:switchTextOff="Email send disabled"
-        android:summaryOff="Disabled"
-        android:icon="@drawable/ic_baseline_send_24"
-        android:dialogIcon="@drawable/ic_baseline_send_24"
-        app:dialogIcon="@drawable/ic_baseline_send_24"
-        app:defaultValue="false"
-        />
-
+        <SwitchPreferenceCompat
+            android:dialogIcon="@drawable/ic_baseline_send_24"
+            android:icon="@drawable/ic_baseline_send_24"
+            android:key="sendMail"
+            android:summary="Share exported calendar"
+            android:summaryOff="Disabled"
+            android:switchTextOff="Email send disabled"
+            android:switchTextOn="Email setting enabled"
+            android:title="Share calendar file"
+            app:defaultValue="false"
+            app:dialogIcon="@drawable/ic_baseline_send_24"
+            app:summaryOff="Share exported calendar"
+            app:summaryOn="Enabled" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Color categories">
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            android:defaultValue="@color/md_green_500"
+            android:key="libre_color"
+            android:title="Libre"
+            app:cpv_allowCustom="false"
+            app:cpv_allowPresets="false"
+            app:cpv_showColorShades="false" />
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            android:defaultValue="@color/md_light_blue_500"
+            android:key="manana_color"
+            android:title="Mañanas"
+            app:cpv_allowCustom="false"
+            app:cpv_allowPresets="false"
+            app:cpv_showColorShades="false" />
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            android:defaultValue="@color/md_orange_500"
+            android:key="tarde_color"
+            android:title="Tardes"
+            app:cpv_allowPresets="false"
+            app:cpv_allowCustom="false"
+            app:cpv_showColorShades="false" />
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            android:defaultValue="@color/md_pink_500"
+            android:key="noche_color"
+            android:title="Noches"
+            app:cpv_allowPresets="false"
+            app:cpv_allowCustom="false"
+            app:cpv_showColorShades="false"/>
+    </PreferenceCategory>
 </PreferenceScreen>

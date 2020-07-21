@@ -8,11 +8,13 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -26,6 +28,7 @@ import com.app.misturnos.App;
 import com.app.misturnos.EventDecorator;
 import com.app.misturnos.R;
 import com.app.misturnos.utils.ExcelExporter;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
@@ -65,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
     Button clearButton;
     @BindView(R.id.exportBtn)
     Button exportButton;
+    @BindView(R.id.selectedColor)
+    ImageView selectedColorBox;
 
     ArrayList<EventDecorator> calendarios = new ArrayList();
 
@@ -75,20 +80,61 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
         ((App) getApplication()).getAppComponent().inject(this);
 
-        ButterKnife.bind(this);
-        loadDates();
         setupObservers();
         askForPermission(Manifest.permission.READ_EXTERNAL_STORAGE, READ_EXST);
         askForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, WRITE_EXST);
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        mcv.invalidateDecorators();
+    protected void onStart() {
+        super.onStart();
+        mcv.removeDecorators();
+        loadDates();
+        refreshSpinner();
+    }
+
+    private void refreshSpinner() {
+        textSpinner = spinner.getSelectedItem().toString();
+        String strColor = "none";
+        switch (textSpinner) {
+            case "Libre":
+                int libreColor = App.sharedPreferences.getInt("libre_color", Color.parseColor("#4caf50"));
+                strColor = String.format("#%06X", 0xFFFFFF & libreColor);
+                mcv.setSelectionColor(Color.parseColor(strColor));
+
+                selectedColorBox.setBackgroundColor(Color.rgb(Color.red(App.sharedPreferences.getInt("libre_color", 0x4caf50)),
+                        Color.green(App.sharedPreferences.getInt("libre_color", 0x4caf50)),
+                        Color.blue(App.sharedPreferences.getInt("libre_color", 0x4caf50))));
+                break;
+            case "Mañanas":
+                int mananaColor = App.sharedPreferences.getInt("manana_color", Color.parseColor("#03a9f4"));
+                strColor = String.format("#%06X", 0xFFFFFF & mananaColor);
+                mcv.setSelectionColor(Color.parseColor(strColor));
+                selectedColorBox.setBackgroundColor(Color.rgb(Color.red(App.sharedPreferences.getInt("manana_color", 0x03a9f4)),
+                        Color.green(App.sharedPreferences.getInt("manana_color", 0x03a9f4)),
+                        Color.blue(App.sharedPreferences.getInt("manana_color", 0x03a9f4))));
+                break;
+            case "Tardes":
+                int tardeColor = App.sharedPreferences.getInt("tarde_color", Color.parseColor("#ff9800"));
+                strColor = String.format("#%06X", 0xFFFFFF & tardeColor);
+                mcv.setSelectionColor(Color.parseColor(strColor));
+                selectedColorBox.setBackgroundColor(Color.rgb(Color.red(App.sharedPreferences.getInt("tarde_color", 0xff9800)),
+                        Color.green(App.sharedPreferences.getInt("tarde_color", 0xff9800)),
+                        Color.blue(App.sharedPreferences.getInt("tarde_color", 0xff9800))));
+                break;
+            case "Noches":
+                int nocheColor = App.sharedPreferences.getInt("noche_color", Color.parseColor("#BD1EE9"));
+                strColor = String.format("#%06X", 0xFFFFFF & nocheColor);
+                mcv.setSelectionColor(Color.parseColor(strColor));
+                selectedColorBox.setBackgroundColor(Color.rgb(Color.red(App.sharedPreferences.getInt("noche_color", 0xBD1EE9)),
+                        Color.green(App.sharedPreferences.getInt("noche_color", 0xBD1EE9)),
+                        Color.blue(App.sharedPreferences.getInt("noche_color", 0xBD1EE9))));
+                break;
+        }
     }
 
     private void setupObservers() {
@@ -96,20 +142,8 @@ public class MainActivity extends AppCompatActivity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<CalendarDay> dates = mcv.getSelectedDates();
                 if (mcv.getSelectedDate() != null) {
-                    for (CalendarDay c : dates
-                    ) {
-                        List<CalendarDay> dateAdd = new ArrayList<>();
-                        dateAdd.add(c);
-                        EventDecorator eventDecorator = new EventDecorator(mcv.getSelectionColor(), dateAdd);
-                        mcv.addDecorator(eventDecorator);
-                        calendarios.add(eventDecorator);
-
-                    }
-
-                    savePreferences();
-                    mcv.clearSelection();
+                    saveDatesSelected();
                 }
             }
         });
@@ -118,18 +152,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (mcv.getSelectedDate() != null) {
-                    for (Iterator<EventDecorator> it = calendarios.iterator(); it.hasNext(); ) {
-                        EventDecorator e = it.next();
-                        boolean delete = checkIfDateExists(e.getDates().iterator().next().toString());
-                        if (delete) {
-                            mcv.removeDecorator(e);
-                            it.remove();
-                        }
-                    }
-
-                    savePreferences();
-                    mcv.invalidateDecorators();
-                    mcv.clearSelection();
+                    clearDatesSelected();
                 }
             }
         });
@@ -137,71 +160,7 @@ public class MainActivity extends AppCompatActivity {
         exportButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Calendar cal = new GregorianCalendar();
-                cal.set(mcv.getCurrentDate().getYear(), mcv.getCurrentDate().getMonth() - 1, 1, 0, 0, 0);
-
-                int myMonth = cal.get(Calendar.MONTH);
-                int myYear = cal.get(Calendar.YEAR);
-
-                TreeMap<Date, String> cDlist = new TreeMap<>();
-                for (EventDecorator e : calendarios
-                ) {
-                    Date date = new GregorianCalendar(e.getDates().iterator().next().getYear(), e.getDates().iterator().next().getMonth() - 1, e.getDates().iterator().next().getDay()).getTime();
-
-                    if (e.getDates().iterator().next().getMonth() - 1 == mcv.getCurrentDate().getMonth() - 1) {
-                        String turno = "";
-                        switch (e.getColor()) {
-                            case -13395457:
-                                turno = "Libre";
-                                break;
-                            case -26317:
-                                turno = "Tardes";
-                                break;
-                            case -65281:
-                                turno = "Noches";
-                                break;
-                            default:
-                                turno = "Mañanas";
-                                break;
-                        }
-                        cDlist.put(date, turno);
-                    }
-
-                }
-
-
-                while (myMonth == cal.get(Calendar.MONTH)) {
-                    cDlist.put(cal.getTime(), "");
-                    cal.add(Calendar.DAY_OF_MONTH, 1);
-                }
-
-
-                TreeMap<Date, String> cDlistFinal = new TreeMap<>();
-
-                Iterator it = cDlist.entrySet().iterator();
-                String oldValue = "";
-                while (it.hasNext()) {
-                    Map.Entry pair = (Map.Entry) it.next();
-                    if (oldValue.equalsIgnoreCase(pair.getKey().toString())) {
-                        continue;
-                    } else {
-                        cDlistFinal.put((Date) pair.getKey(), pair.getValue().toString());
-                    }
-
-                    oldValue = (String) pair.getKey().toString();
-                }
-
-                ExcelExporter xlsExporter = new ExcelExporter(cDlistFinal, MainActivity.this, myMonth, myYear);
-                xlsExporter.export();
-                boolean sendEmail = App.sharedPreferences.getBoolean("sendMail", false);
-                if (sendEmail) {
-                    String emailAddr = App.sharedPreferences.getString("mailAddr", "");
-                    if (TextUtils.isEmpty(emailAddr)) {
-                        Toast.makeText(MainActivity.this, "Introduce un email en opciones.", Toast.LENGTH_SHORT).show();
-                    } else {
-                        sendCalendarByEmail(emailAddr, "Calendario MisTurnos", xlsExporter.getFileGenerated());
-                    }
-                }
+                exportCalendar(v);
             }
         });
 
@@ -209,28 +168,50 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 textSpinner = spinner.getSelectedItem().toString();
+                String strColor = "none";
                 switch (textSpinner) {
                     case "Libre":
-                        mcv.setSelectionColor(Color.parseColor("#32CD32"));
+                        int libreColor = App.sharedPreferences.getInt("libre_color", 0x4caf50);
+                        strColor = String.format("#%06X", 0xFFFFFF & libreColor);
+                        mcv.setSelectionColor(Color.parseColor(strColor));
+
+                        selectedColorBox.setBackgroundColor(Color.rgb(Color.red(App.sharedPreferences.getInt("libre_color", 0x4caf50)),
+                                Color.green(App.sharedPreferences.getInt("libre_color", 0x4caf50)),
+                                Color.blue(App.sharedPreferences.getInt("libre_color", 0x4caf50))));
                         break;
                     case "Mañanas":
-                        mcv.setSelectionColor(Color.parseColor("#3399ff"));
+                        int mananaColor = App.sharedPreferences.getInt("manana_color", 0x03a9f4);
+                        strColor = String.format("#%06X", 0xFFFFFF & mananaColor);
+                        mcv.setSelectionColor(Color.parseColor(strColor));
+                        selectedColorBox.setBackgroundColor(Color.rgb(Color.red(App.sharedPreferences.getInt("manana_color", 0x03a9f4)),
+                                Color.green(App.sharedPreferences.getInt("manana_color", 0x03a9f4)),
+                                Color.blue(App.sharedPreferences.getInt("manana_color", 0x03a9f4))));
                         break;
                     case "Tardes":
-                        mcv.setSelectionColor(Color.parseColor("#ff9933"));
+                        int tardeColor = App.sharedPreferences.getInt("tarde_color", 0xff9800);
+                        strColor = String.format("#%06X", 0xFFFFFF & tardeColor);
+                        mcv.setSelectionColor(Color.parseColor(strColor));
+                        selectedColorBox.setBackgroundColor(Color.rgb(Color.red(App.sharedPreferences.getInt("tarde_color", 0xff9800)),
+                                Color.green(App.sharedPreferences.getInt("tarde_color", 0xff9800)),
+                                Color.blue(App.sharedPreferences.getInt("tarde_color", 0xff9800))));
                         break;
                     case "Noches":
-                        mcv.setSelectionColor(Color.parseColor("#ff00ff"));
+                        int nocheColor = App.sharedPreferences.getInt("noche_color", 0xBD1EE9);
+                        strColor = String.format("#%06X", 0xFFFFFF & nocheColor);
+                        mcv.setSelectionColor(Color.parseColor(strColor));
+                        selectedColorBox.setBackgroundColor(Color.rgb(Color.red(App.sharedPreferences.getInt("noche_color", 0xBD1EE9)),
+                                Color.green(App.sharedPreferences.getInt("noche_color", 0xBD1EE9)),
+                                Color.blue(App.sharedPreferences.getInt("noche_color", 0xBD1EE9))));
                         break;
                 }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
             }
         });
     }
+
 
     boolean checkIfDateExists(String d) {
         List<CalendarDay> dates = mcv.getSelectedDates();
@@ -250,9 +231,23 @@ public class MainActivity extends AppCompatActivity {
             Type type = new TypeToken<List<EventDecorator>>() {
             }.getType();
             calendarios = gson.fromJson(jsonPreferences, type);
-            for (EventDecorator e : calendarios
-            ) {
-                mcv.addDecorator(e);
+
+            for (int i = 0; i < calendarios.size(); i++) {
+                EventDecorator eventDecorator = calendarios.get(i);
+                if (eventDecorator.getTipo().equals("Libre")) {
+                    eventDecorator.setColor(App.sharedPreferences.getInt("libre_color", Color.parseColor("#4caf50")));
+                    calendarios.get(i).setColor(App.sharedPreferences.getInt("libre_color", Color.parseColor("#4caf50")));
+                } else if (eventDecorator.getTipo().equals("Mañanas")) {
+                    eventDecorator.setColor(App.sharedPreferences.getInt("manana_color", Color.parseColor("#03a9f4")));
+                    calendarios.get(i).setColor(App.sharedPreferences.getInt("manana_color", Color.parseColor("#03a9f4")));
+                } else if (eventDecorator.getTipo().equals("Tardes")) {
+                    eventDecorator.setColor(App.sharedPreferences.getInt("tarde_color", Color.parseColor("#ff9800")));
+                    calendarios.get(i).setColor(App.sharedPreferences.getInt("tarde_color", Color.parseColor("#ff9800")));
+                } else if (eventDecorator.getTipo().equals("Noches")) {
+                    eventDecorator.setColor(App.sharedPreferences.getInt("noche_color", Color.parseColor("#BD1EE9")));
+                    calendarios.get(i).setColor(App.sharedPreferences.getInt("noche_color", Color.parseColor("#BD1EE9")));
+                }
+                mcv.addDecorator(eventDecorator);
             }
             mcv.invalidateDecorators();
         }
@@ -309,13 +304,112 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendCalendarByEmail(String to, String sub, File fileAttachment) {
-        Uri uri = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName() + ".provider", fileAttachment);
-        Intent mail = new Intent(Intent.ACTION_SEND);
-        mail.putExtra(Intent.EXTRA_EMAIL, new String[]{to});
-        mail.putExtra(Intent.EXTRA_SUBJECT, sub);
-        mail.putExtra(Intent.EXTRA_STREAM, uri);
-        mail.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        mail.setType("text/plain");
-        startActivity(Intent.createChooser(mail, "Send email via:"));
+        try {
+            Uri uri = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName() + ".provider", fileAttachment);
+            Intent mail = new Intent(Intent.ACTION_SEND);
+            mail.putExtra(Intent.EXTRA_EMAIL, new String[]{to});
+            mail.putExtra(Intent.EXTRA_SUBJECT, sub);
+            mail.putExtra(Intent.EXTRA_STREAM, uri);
+            mail.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            mail.setType("text/plain");
+            startActivity(Intent.createChooser(mail, "Send email via:"));
+        } catch (Exception e) {
+            Log.i("error", e.getMessage());
+        }
     }
+
+    private void saveDatesSelected() {
+        for (CalendarDay c : mcv.getSelectedDates()
+        ) {
+            List<CalendarDay> dateAdd = new ArrayList<>();
+            dateAdd.add(c);
+            EventDecorator eventDecorator = new EventDecorator(mcv.getSelectionColor(), dateAdd, textSpinner);
+            mcv.addDecorator(eventDecorator);
+            calendarios.add(eventDecorator);
+        }
+
+        savePreferences();
+        mcv.clearSelection();
+    }
+
+    private void clearDatesSelected() {
+        for (Iterator<EventDecorator> it = calendarios.iterator(); it.hasNext(); ) {
+            EventDecorator e = it.next();
+            boolean delete = checkIfDateExists(e.getDates().iterator().next().toString());
+            if (delete) {
+                mcv.removeDecorator(e);
+                it.remove();
+            }
+        }
+        savePreferences();
+        mcv.invalidateDecorators();
+        mcv.clearSelection();
+    }
+
+    private void exportCalendar(View v) {
+        Calendar cal = new GregorianCalendar();
+        cal.set(mcv.getCurrentDate().getYear(), mcv.getCurrentDate().getMonth() - 1, 1, 0, 0, 0);
+
+        TreeMap<Date, String> cDlist = new TreeMap<>();
+        for (EventDecorator e : calendarios
+        ) {
+            Date date = new GregorianCalendar(e.getDates().iterator().next().getYear(), e.getDates().iterator().next().getMonth() - 1, e.getDates().iterator().next().getDay()).getTime();
+
+            if (e.getDates().iterator().next().getMonth() - 1 == mcv.getCurrentDate().getMonth() - 1) {
+                String turno = "";
+                if (e.getColor() == App.sharedPreferences.getInt("libre_color", Color.parseColor("#4caf50"))) {
+                    turno = "Libre";
+                } else if (e.getColor() == App.sharedPreferences.getInt("manana_color", Color.parseColor("#03a9f4"))) {
+                    turno = "Mañanas";
+                } else if (e.getColor() == App.sharedPreferences.getInt("noche_color", Color.parseColor("#BD1EE9"))) {
+                    turno = "Noches";
+                } else {
+                    turno = "Tardes";
+                }
+
+                cDlist.put(date, turno);
+            }
+
+        }
+
+        int myMonth = cal.get(Calendar.MONTH);
+        int myYear = cal.get(Calendar.YEAR);
+
+        while (myMonth == cal.get(Calendar.MONTH)) {
+            cDlist.put(cal.getTime(), "");
+            cal.add(Calendar.DAY_OF_MONTH, 1);
+        }
+
+
+        TreeMap<Date, String> cDlistFinal = new TreeMap<>();
+
+        Iterator it = cDlist.entrySet().iterator();
+        String oldValue = "";
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry) it.next();
+            if (oldValue.equalsIgnoreCase(pair.getKey().toString())) {
+                continue;
+            } else {
+                cDlistFinal.put((Date) pair.getKey(), pair.getValue().toString());
+            }
+
+            oldValue = (String) pair.getKey().toString();
+        }
+
+        ExcelExporter xlsExporter = new ExcelExporter(cDlistFinal, MainActivity.this, myMonth, myYear);
+        xlsExporter.export();
+        Snackbar.make(v, "File: " + xlsExporter.getFileGenerated().getAbsolutePath(), Snackbar.LENGTH_LONG)
+                .show();
+        boolean sendEmail = App.sharedPreferences.getBoolean("sendMail", false);
+        if (sendEmail) {
+            String emailAddr = App.sharedPreferences.getString("mailAddr", "");
+            if (TextUtils.isEmpty(emailAddr)) {
+                Toast.makeText(MainActivity.this, "Introduce un email en opciones.", Toast.LENGTH_SHORT).show();
+            } else {
+                sendCalendarByEmail(emailAddr, "Calendario MisTurnos", xlsExporter.getFileGenerated());
+            }
+        }
+    }
+
+
 }

@@ -4,4 +4,9 @@
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
     <color name="remove">#5d5d5d</color>
+
+    <color name="md_green_500">#4caf50</color>
+    <color name="md_light_blue_500">#03a9f4</color>
+    <color name="md_orange_500">#ff9800</color>
+    <color name="md_pink_500">#BD1EE9</color>
 </resources>

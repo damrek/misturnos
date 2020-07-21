@@ -19,11 +19,13 @@ import java.util.HashSet;
 public class EventDecorator implements DayViewDecorator {
 
     private int color;
+    private String tipo;
     private HashSet<CalendarDay> dates;
 
-    public EventDecorator(int color, Collection<CalendarDay> dates) {
+    public EventDecorator(int color, Collection<CalendarDay> dates, String tipo) {
         this.color = color;
         this.dates = new HashSet<>(dates);
+        this.tipo = tipo;
     }
 
     @Override
@@ -44,6 +46,14 @@ public class EventDecorator implements DayViewDecorator {
 
     public int getColor() {
         return color;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
+    }
+
+    public String getTipo() {
+        return tipo;
     }
 
     public HashSet<CalendarDay> getDates() {

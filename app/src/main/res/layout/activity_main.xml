@@ -33,7 +33,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:gravity="center"
-            android:text="Selecciona un horario:"
+            android:text="Turno:"
             android:textSize="18sp"
             android:textStyle="bold"></TextView>
 
@@ -42,8 +42,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:gravity="center_horizontal"
+            style="@style/spinnerItemStyle"
             android:entries="@array/turnos_array"
             android:prompt="@string/turnos_prompt" />
+        <ImageView
+            android:id="@+id/selectedColor"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/md_green_500"/>
     </LinearLayout>
 
     <LinearLayout

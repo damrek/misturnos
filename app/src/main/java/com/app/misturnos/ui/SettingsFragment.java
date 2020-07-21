@@ -26,9 +26,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         emailAddrPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if(!TextUtils.isEmpty(newValue.toString())){
+                if (!TextUtils.isEmpty(newValue.toString())) {
                     preference.setSummary(newValue.toString());
-                }else{
+                } else {
                     preference.setSummary("Enter your email address to share");
                 }
                 return true;

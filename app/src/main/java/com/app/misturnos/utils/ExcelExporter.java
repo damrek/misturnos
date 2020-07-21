@@ -1,7 +1,9 @@
 package com.app.misturnos.utils;
 
 import android.content.Context;
-import android.widget.Toast;
+import android.graphics.Color;
+
+import com.app.misturnos.App;
 
 import java.io.File;
 import java.util.Date;
@@ -60,28 +62,37 @@ public class ExcelExporter {
             workbook = Workbook.createWorkbook(file, wbSettings);
 
             //Excel sheetA first sheetA
-            WritableSheet sheetA = workbook.createSheet(month+"_"+year, 0);
+            WritableSheet sheetA = workbook.createSheet(month + "_" + year, 0);
 
             Iterator it = cDlistFinal.entrySet().iterator();
             int conta = 0;
             while (it.hasNext()) {
                 Map.Entry pair = (Map.Entry) it.next();
-                WritableCellFormat newFormat = new WritableCellFormat(new jxl.write.DateFormat("dd-mm-yyyy"));
+                WritableCellFormat newFormat = new WritableCellFormat(new jxl.write.DateFormat("dd/mm/yyyy"));
 
                 WritableCell c = new jxl.write.DateTime(0, conta, (Date) pair.getKey(), newFormat);
                 WritableCell cNameTurno = new jxl.write.Label(1, conta, (String) pair.getValue().toString());
+                int color = 0;
                 switch (pair.getValue().toString()) {
                     case "Libre":
-                        newFormat.setBackground(Colour.BRIGHT_GREEN);
+                        color = App.sharedPreferences.getInt("libre_color", 0x4caf50);
+                        workbook.setColourRGB(Colour.LIGHT_TURQUOISE, Color.red(color), Color.green(color), Color.blue(color));
+                        newFormat.setBackground(Colour.LIGHT_TURQUOISE);
                         break;
                     case "Mañanas":
-                        newFormat.setBackground(Colour.SKY_BLUE);
+                        color = App.sharedPreferences.getInt("manana_color", 0x03a9f4);
+                        workbook.setColourRGB(Colour.LIGHT_TURQUOISE2, Color.red(color), Color.green(color), Color.blue(color));
+                        newFormat.setBackground(Colour.LIGHT_TURQUOISE2);
                         break;
                     case "Tardes":
-                        newFormat.setBackground(Colour.ORANGE);
+                        color = App.sharedPreferences.getInt("tarde_color", 0xff9800);
+                        workbook.setColourRGB(Colour.LIGHT_GREEN, Color.red(color), Color.green(color), Color.blue(color));
+                        newFormat.setBackground(Colour.LIGHT_GREEN);
                         break;
                     case "Noches":
-                        newFormat.setBackground(Colour.PINK);
+                        color = App.sharedPreferences.getInt("noche_color", 0xBD1EE9);
+                        workbook.setColourRGB(Colour.LIGHT_BLUE, Color.red(color), Color.green(color), Color.blue(color));
+                        newFormat.setBackground(Colour.LIGHT_BLUE);
                         break;
                     default:
 //                        newFormat.setBackground(Colour.WHITE);
@@ -98,7 +109,6 @@ public class ExcelExporter {
             // close workbook
             workbook.write();
             workbook.close();
-            Toast.makeText(this.context, "Fichero generado en: " + directory.getAbsolutePath() + "/" + csvFile, Toast.LENGTH_LONG).show();
             fileGenerated = file;
 
         } catch (Exception e) {
