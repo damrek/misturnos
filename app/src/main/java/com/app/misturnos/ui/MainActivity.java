@@ -356,17 +356,7 @@ public class MainActivity extends AppCompatActivity {
             Date date = new GregorianCalendar(e.getDates().iterator().next().getYear(), e.getDates().iterator().next().getMonth() - 1, e.getDates().iterator().next().getDay()).getTime();
 
             if (e.getDates().iterator().next().getMonth() - 1 == mcv.getCurrentDate().getMonth() - 1) {
-                String turno = "";
-                if (e.getColor() == App.sharedPreferences.getInt("libre_color", Color.parseColor("#4caf50"))) {
-                    turno = "Libre";
-                } else if (e.getColor() == App.sharedPreferences.getInt("manana_color", Color.parseColor("#03a9f4"))) {
-                    turno = "Mañanas";
-                } else if (e.getColor() == App.sharedPreferences.getInt("noche_color", Color.parseColor("#BD1EE9"))) {
-                    turno = "Noches";
-                } else {
-                    turno = "Tardes";
-                }
-
+                String turno = e.getTipo();
                 cDlist.put(date, turno);
             }
 
